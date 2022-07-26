@@ -1,11 +1,7 @@
-from decimal import Decimal
-from typing import Union, List
-
 import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-Base = declarative_base()
+from .database import Base
 
 
 class User(Base):
