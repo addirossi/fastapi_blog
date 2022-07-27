@@ -19,11 +19,7 @@ class PostSchema(BaseClass):
     category: CategorySchema
 
 
-
-class UserSchema(BaseClass):
-    id: int
+class CreateUserSchema(BaseClass):
     email: EmailStr
     name: str
     password: str
-    is_active: bool
-

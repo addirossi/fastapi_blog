@@ -10,6 +10,7 @@ class User(Base):
     name = sa.Column(sa.String(30))
     password = sa.Column(sa.String())
     is_active = sa.Column(sa.Boolean, default=False)
+    activation_code = sa.Column(sa.String(8), default='')
     posts = relationship("Post", back_populates="author")
 
     __tablename__ = 'users'
@@ -71,7 +72,12 @@ class Post(Base):
         return self.title
 
 
-
+def get_random_string(length):
+    import random
+    import string
+    chars = string.ascii_letters + string.digits
+    res = ''.join(random.choice(chars) for i in range(length))
+    return res
 
 
 
