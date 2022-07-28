@@ -4,8 +4,12 @@ from sqladmin import Admin
 
 from sqlalchemy.orm import Session
 
+from app.auth import (create_access_token, create_refresh_token,
+                      get_request_user)
 from app.database import get_db, engine
-from app.schemas import CategorySchema, PostSchema, CreateUserSchema
+from app.schemas import (CategorySchema, PostSchema, CreateUserSchema,
+                         Token, LoginSchema, CreatePostSchema,
+                         UpdatePostSchema)
 from app.models import Category, Post, User, get_random_string
 from app.admin import CategoryAdmin, PostAdmin, UserAdmin
 from app.hashing import Hasher
@@ -24,6 +28,39 @@ async def categories_list(db: Session = Depends(get_db)):
 @app.get('/posts/', response_model=List[PostSchema])
 async def posts_list(db: Session = Depends(get_db)):
     return db.query(Post).all()
+
+
+@app.get('/posts/{slug}/', response_model=PostSchema)
+async def post_details(slug, db: Session = Depends(get_db)):
+    post = db.query(Post).filter(Post.slug == slug).first()
+    if post is None:
+        raise HTTPException(
+            status_code=404,
+            detail='Пост не найден'
+        )
+    return post
+
+
+@app.post('/posts/', response_model=PostSchema)
+async def create_post(data: CreatePostSchema,
+                      db: Session = Depends(get_db),
+                      user: User = Depends(get_request_user)):
+    pass
+
+
+@app.patch('/posts/{slug}/', response_model=PostSchema)
+async def update_post(slug: str,
+                      data: UpdatePostSchema,
+                      db: Session = Depends(get_db),
+                      user: User = Depends(get_request_user)):
+    pass
+
+
+@app.delete('/posts/{slug}/')
+async def delete_post(slug: str,
+                      db: Session = Depends(get_db),
+                      user: User = Depends(get_request_user)):
+    pass
 
 
 @app.post('/register/')
@@ -59,6 +96,25 @@ def activation(activation_code: str, db: Session = Depends(get_db)):
     else:
         raise HTTPException(status_code=404, detail='Пользователь не найден')
 
+
+@app.post('/login/', response_model=Token)
+def login(data: LoginSchema, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    if user is None:
+        raise HTTPException(status_code=400,
+                            detail='Неверный email')
+    hashed_pass = user.password
+    raw_pass = data.password
+    if not Hasher.verify_password(raw_pass, hashed_pass):
+        raise HTTPException(status_code=400,
+                            detail='Неверный пароль')
+    if not user.is_active:
+        raise HTTPException(status_code=400,
+                            detail='Аккаунт не активен')
+    return {
+        'access_token': create_access_token(user.id),
+        'refresh_token': create_refresh_token(user.id)
+    }
 
 #TODO: закончить авторизацию (логин, смена пароля и т.д.)
 #TODO: сделать валидацию

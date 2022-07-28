@@ -6,3 +6,4 @@ python-dotenv
 sqladmin
 passlib[bcrypt]
 fastapi-mail
+python-jose[cryptography]
