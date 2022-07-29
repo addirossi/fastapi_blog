@@ -1,8 +1,14 @@
 from fastapi import FastAPI, Depends, BackgroundTasks, HTTPException
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
 from slugify import slugify
 from sqladmin import Admin
 from sqlalchemy.orm import Session
 from typing import List
+
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from app.auth import (create_access_token, create_refresh_token,
                       get_request_user)
@@ -91,13 +97,21 @@ async def delete_post(slug: str,
     return 'Пост удалён'
 
 
+@app.exception_handler(RequestValidationError)
+def validation_handler(request, exc):
+    return JSONResponse(
+        status_code=400,
+        content=jsonable_encoder({'detail': exc.errors()})
+    )
+
+
 @app.post('/register/')
 def register_user(background_task: BackgroundTasks,
                   user: CreateUserSchema,
                   db: Session = Depends(get_db)):
     activation_code = get_random_string(8)
     hashed = Hasher.hash_password(user.password)
-    user1 = User(**user.dict())
+    user1 = User(**{'email': user.email, 'name': user.name})
     user1.password = hashed
     user1.activation_code = activation_code
     db.add(user1)

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator, ValidationError
 
 
 class BaseClass(BaseModel):
@@ -36,6 +36,15 @@ class CreateUserSchema(BaseClass):
     email: EmailStr
     name: str
     password: str
+    password_confirm: str
+
+    @validator('password_confirm')
+    def passwords_matching(cls, password_confirm, values, **kwargs):
+        print(values)
+        password = values.get('password')
+        if password_confirm != password:
+            raise ValueError('Пароли не совпадают')
+        return password
 
 
 class UserSchema(BaseClass):
