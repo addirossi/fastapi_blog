@@ -64,11 +64,12 @@ async def update_post(slug: str,
     if post is None:
         raise HTTPException(status_code=404,
                             detail='Пост не найден')
-    if post.author != user:
+    if post.author_id != user.id:
         raise HTTPException(status_code=403,
                             detail='Вы не являетесь автором')
     for key, value in data.dict().items():
-        setattr(post, key, value)
+        if value is not None:
+            setattr(post, key, value)
     db.commit()
     db.refresh(post)
     return post
@@ -82,7 +83,7 @@ async def delete_post(slug: str,
     if post is None:
         raise HTTPException(status_code=404,
                             detail='Пост не найден')
-    if post.author != user:
+    if post.author_id != user.id:
         raise HTTPException(status_code=403,
                             detail='Вы не являетесь автором')
     db.delete(post)
