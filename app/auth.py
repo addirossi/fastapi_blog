@@ -22,14 +22,14 @@ ACCESS_TOKEN_LIFETIME = int(os.getenv('ACCESS_TOKEN_LIFETIME'))
 REFRESH_TOKEN_LIFETIME = int(os.getenv('REFRESH_TOKEN_LIFETIME'))
 
 
-def create_access_token(subject: int) -> str:
+def create_access_token(subject: str) -> str:
     expiration_time = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_LIFETIME)
     payload = {"exp": expiration_time, "sub": subject}
     encoded_jwt = jwt.encode(payload, SECRET_KEY, ALGORITHM)
     return encoded_jwt
 
 
-def create_refresh_token(subject: int) -> str:
+def create_refresh_token(subject: str) -> str:
     expiration_time = datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_LIFETIME)
     payload = {"exp": expiration_time, "sub": subject}
     encoded_jwt = jwt.encode(payload, REFRESH_SECRET_KEY, ALGORITHM)
@@ -62,4 +62,10 @@ def get_request_user(token: str = Depends(reusable_oauth), db: Session = Depends
             status_code=404,
             detail='Пользователь не найден'
         )
-    return UserSchema(**user)
+    data = {
+        'id': user.id,
+        'email': user.email,
+        'name': user.name,
+        'is_active': user.is_active
+    }
+    return UserSchema(**data)

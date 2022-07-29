@@ -24,7 +24,7 @@ class PostSchema(BaseClass):
 class CreatePostSchema(BaseClass):
     title: str
     text: str
-    category: CategorySchema
+    category_id: str
 
 
 class UpdatePostSchema(BaseClass):
