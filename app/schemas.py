@@ -1,6 +1,11 @@
-from typing import Optional
+from typing import Optional, List
 
+from fastapi import Depends
 from pydantic import BaseModel, EmailStr, validator, ValidationError
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models import User
 
 
 class BaseClass(BaseModel):
@@ -19,6 +24,21 @@ class PostSchema(BaseClass):
     slug: str
     text: str
     category: CategorySchema
+
+    class Config:
+        schema_extra = {
+            'example': {
+                "id": 1,
+                "title": "Первый выпускной в TSI AUCA",
+                "slug": "pervyy_vypysknoy_v_tsi_auca",
+                "text": "dwawdafegrhtjvtrseawaesrdf",
+                "category":
+                    {
+                     "title": "Новости",
+                     "slug": "news"
+                    }
+            }
+        }
 
 
 class CreatePostSchema(BaseClass):
