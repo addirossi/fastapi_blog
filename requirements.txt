@@ -8,3 +8,4 @@ passlib[bcrypt]
 fastapi-mail
 python-jose[cryptography]
 python-slugify
+fastapi-pagination

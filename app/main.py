@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
+from fastapi_pagination import add_pagination
 from sqladmin import Admin
 
 from starlette.responses import JSONResponse
@@ -33,3 +34,5 @@ admin.register_model(CategoryAdmin)
 admin.register_model(PostAdmin)
 admin.register_model(UserAdmin)
 admin.register_model(TagAdmin)
+
+add_pagination(app)

@@ -1,13 +1,15 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, status, HTTPException, BackgroundTasks
+from fastapi_pagination import Page, paginate
 from slugify import slugify
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.auth import get_request_user, create_access_token, create_refresh_token
 from app.database import get_db
 from app.hashing import Hasher
-from app.models import Category, Post, User, get_random_string
+from app.models import Category, Post, User, get_random_string, through_table, Tag
 from app.schemas import CategorySchema, PostSchema, CreatePostSchema, UpdatePostSchema, CreateUserSchema, Token, \
     LoginSchema
 from app.send_mail import send_email
@@ -20,10 +22,18 @@ async def categories_list(db: Session = Depends(get_db)):
     return db.query(Category).all()
 
 
-@router.get('/posts/', response_model=List[PostSchema], status_code=200, tags=['posts'])
-async def posts_list(db: Session = Depends(get_db)):
+@router.get('/posts/', response_model=Page[PostSchema], status_code=200, tags=['posts'])
+async def posts_list(category:str = None, tag: str = None, q: str = None, db: Session = Depends(get_db)):
     '''Возвращает список всех постов'''
-    return db.query(Post).all()
+    posts = db.query(Post)
+    if category:
+        posts = posts.filter(Post.category_id == category)
+    if tag:
+        # posts = posts.join(through_table).filter(through_table.columns.tag_id == tag)
+        posts = posts.filter(Post.tags.any(Tag.slug == tag))
+    if q:
+        posts = posts.filter(or_(Post.title.ilike(f'%{q}%'), Post.text.ilike(f'%{q}%')))
+    return paginate(posts.all())
 
 
 @router.get('/posts/{slug}/', response_model=PostSchema, status_code=status.HTTP_200_OK, tags=['posts'])
