@@ -9,3 +9,4 @@ fastapi-mail
 python-jose[cryptography]
 python-slugify
 fastapi-pagination
+flake8

@@ -1,21 +1,16 @@
-import os
-
-from dotenv import load_dotenv
 from fastapi import BackgroundTasks
 from fastapi_mail import (FastMail,
                           MessageSchema,
                           ConnectionConfig)
 
-
-load_dotenv()
-
+from app import settings
 
 conf = ConnectionConfig(
-    MAIL_USERNAME=os.getenv('EMAIL_USER'),
-    MAIL_PASSWORD=os.getenv('EMAIL_PASSWORD'),
-    MAIL_FROM=os.getenv('EMAIL_FROM'),
-    MAIL_PORT=os.getenv('EMAIL_PORT'),
-    MAIL_SERVER=os.getenv('EMAIL_HOST'),
+    MAIL_USERNAME=settings.EMAIL_USER,
+    MAIL_PASSWORD=settings.EMAIL_PASSWORD,
+    MAIL_FROM=settings.EMAIL_FROM,
+    MAIL_PORT=settings.EMAIL_PORT,
+    MAIL_SERVER=settings.EMAIL_HOST,
     MAIL_TLS=True,
     MAIL_SSL=False,
     USE_CREDENTIALS=True

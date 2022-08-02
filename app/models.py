@@ -44,19 +44,10 @@ through_table = Table(
     sa.Column('tag_id', sa.ForeignKey('tags.slug'), primary_key=True),
 )
 
-# class PostTags(Base):
-#     __tablename__ = 'post_tags'
-#
-#     post_id = sa.Column(sa.ForeignKey('posts.id'), primary_key=True)
-#     tag_id = sa.Column(sa.ForeignKey('tags.slug'), primary_key=True)
-#     post = relationship('Post', back_populates='tags')
-#     tag = relationship('Tag', back_populates='posts')
-
 
 class Tag(Base):
     title = sa.Column(sa.String(50), unique=True)
     slug = sa.Column(sa.String(50), primary_key=True)
-    # posts = relationship('PostTags', back_populates='tag')
     posts = relationship('Post',
                          secondary=through_table,
                          back_populates='tags')
@@ -83,7 +74,6 @@ class Post(Base):
     author = relationship("User", back_populates="posts")
     created_at = sa.Column(sa.DateTime,
                            default=sa.sql.func.now())
-    # tags = relationship('PostTags', back_populates='post')
     tags = relationship('Tag',
                         secondary=through_table,
                         back_populates='posts')

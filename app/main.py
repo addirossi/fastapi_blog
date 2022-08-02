@@ -26,7 +26,6 @@ def validation_handler(request, exc):
 
 app.include_router(router)
 
-#TODO: фильтрация, пагинация, поиск
 #TODO: Docker
 #TODO: деплой
 
